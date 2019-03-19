@@ -31,7 +31,7 @@ public class Enigma {
   //Get char at index
   public static String get(String n, int index) {
     String rt = "";
-    if ((index + 1) == n.length()) {
+    if ((index + 1) >= n.length()) {
       rt = n.substring(index);
     }else {
       rt = n.substring(index, index+1);
@@ -41,6 +41,12 @@ public class Enigma {
   //Get rotor position
   public static int getRotorIndex(int index, int rotation) {
     return Math.abs(26 - (index + rotation));
+  }
+  //Get Reverse rotor position
+  public static int getReverseRotorIndex(int index, int rotation) {
+    index = index - rotation;
+    if (index < 0) {index = 26 + index;}
+    return index;
   }
   //Make rotation
   public static void rotate() {
@@ -65,6 +71,7 @@ public class Enigma {
           message += name;
         }
       }
+      message = message.toUpperCase();
     }catch(Exception e) {}
   }
   //Display
@@ -79,13 +86,29 @@ public class Enigma {
     String newM = "";
     String ch = "";
     for (int i = 0; i < message.length(); i++) {
+      System.out.println("Starting first sequence...\n");
       ch = plugboard(get(message, i));
+      System.out.print("Rotor 1 changed " + ch + " to ");
       ch = rotors(ch, rotorI, r1);
-      //ch = rotors(ch, rotorII, r2);
-      //ch = rotors(ch, rotorIII, r3);
-      //ch = reflection(ch, r4);
-      //Todo reverse
       System.out.println(ch);
+      System.out.print("Rotor 2 changed " + ch + " to ");
+      ch = rotors(ch, rotorII, r2);
+      System.out.println(ch);
+      System.out.print("Rotor 3 changed " + ch + " to ");
+      ch = rotors(ch, rotorIII, r3);
+      System.out.print(ch + "\nEnding first sequence...\n\nStarting reverse");
+      //ch = reflection(ch);
+      System.out.print("Rotor 1 reverse changed " + ch + " to ");
+      ch = reverseRotors(ch, rotorIII, r3);
+      System.out.println(ch);
+      System.out.print("Rotor 2 reverse changed " + ch + " to ");
+      ch = reverseRotors(ch, rotorII, r2);
+      System.out.println(ch);
+      System.out.print("Rotor 3 reverse changed " + ch + " to ");
+      ch = reverseRotors(ch, rotorI, r1);
+      System.out.println(ch);
+      //Todo reverse
+      //System.out.println(ch);
       newM += ch;
     }
     message = newM;
@@ -99,11 +122,30 @@ public class Enigma {
     }
     return ch;
   }
-  //RotorI
+  //Rotors
   public static String rotors(String ch, String rot, int r) {
     for (int i = 0; i < 26; i++) {
       if (get(alphabet, i).equals(ch)) {
-        return get(rot, getRotorIndex(i, r));
+        rotate();
+        return get(rot, getRotorIndex(i, r - 1));
+      }
+    }
+    return ch;
+  }
+  //Reverse Rotors
+  public static String reverseRotors(String ch, String rot, int r) {
+    for (int i = 0; i < 26; i++) {
+      if (get(rot, i).equals(ch)) {
+        return get(alphabet, getReverseRotorIndex(i, r - 1));
+      }
+    }
+    return ch;
+  }
+  //reflection
+  public static String reflection(String ch) {
+    for (int i = 0; i < 26; i++) {
+      if (get(alphabet, i).equals(ch)) {
+        return get(reflection, i);
       }
     }
     return ch;
