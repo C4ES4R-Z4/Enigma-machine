@@ -8,13 +8,14 @@ public class Enigma {
   static int r1 = 0, r2 = 0, r3 = 0;
   static String message = "";
   static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static String plugboard = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static String reflection = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
-  static String rotorI = "JGDQOXUSCAMIFRVTPNEWKBLZYH";
-  static String rotorII = "NTZPSFBOKMWRCJDIVLAEYUXHGQ";
-  static String rotorIII = "JVIUBHTCDYAKEQZPOSGXNRMWFL";
+  static String plugboard;// = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  static String reflection;// = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
+  static String rotorI;// = "JGDQOXUSCAMIFRVTPNEWKBLZYH";
+  static String rotorII;// = "NTZPSFBOKMWRCJDIVLAEYUXHGQ";
+  static String rotorIII;// = "JVIUBHTCDYAKEQZPOSGXNRMWFL";
   //Main
-  public static void main(String[] args) {
+  public static void main(String[] args) throws FileNotFoundException {
+    loadSettings();
     checkErrors();
     getMessage();
     encrypt();
@@ -39,11 +40,14 @@ public class Enigma {
     return rt;
   }
   //Get rotor position
-  public static int getRotorIndex(int index, int rotation) {
+  public static int getReverseRotorIndex(int index, int rotation) {
+    if (index + rotation < 26) {
+      return (index + rotation);
+    }
     return Math.abs(26 - (index + rotation));
   }
   //Get Reverse rotor position
-  public static int getReverseRotorIndex(int index, int rotation) {
+  public static int getRotorIndex(int index, int rotation) {
     index = index - rotation;
     if (index < 0) {index = 26 + index;}
     return index;
@@ -74,6 +78,23 @@ public class Enigma {
       message = message.toUpperCase();
     }catch(Exception e) {}
   }
+  //GetSavedDetails
+  public static void loadSettings() throws FileNotFoundException {
+    Scanner in = new Scanner(new File("Saved.cfg"));
+    in.useDelimiter(".");
+    while (in.hasNext()) {
+      String first = in.nextLine();
+      if (first.contains("#")) {continue;}
+      else if (first.contains("RIII:")) {rotorIII = first.substring(5);}
+      else if (first.contains("RII:")) {rotorII = first.substring(4);}
+      else if (first.contains("RI:")) {rotorI = first.substring(3);}
+      else if (first.contains("R:")) {reflection = first.substring(2);}
+      else if (first.contains("P:")) {plugboard = first.substring(2);}
+      else if (first.contains("A:")) {r1 = Integer.parseInt(first.substring(2));}
+      else if (first.contains("B:")) {r2 = Integer.parseInt(first.substring(2));}
+      else if (first.contains("C:")) {r3 = Integer.parseInt(first.substring(2));}
+    }
+  }
   //Display
   public static void display() {
     System.out.println(message);
@@ -86,30 +107,16 @@ public class Enigma {
     String newM = "";
     String ch = "";
     for (int i = 0; i < message.length(); i++) {
-      System.out.println("Starting first sequence...\n");
       ch = plugboard(get(message, i));
-      System.out.print("Rotor 1 changed " + ch + " to ");
       ch = rotors(ch, rotorI, r1);
-      System.out.println(ch);
-      System.out.print("Rotor 2 changed " + ch + " to ");
       ch = rotors(ch, rotorII, r2);
-      System.out.println(ch);
-      System.out.print("Rotor 3 changed " + ch + " to ");
       ch = rotors(ch, rotorIII, r3);
-      System.out.print(ch + "\nEnding first sequence...\n\nStarting reverse");
-      //ch = reflection(ch);
-      System.out.print("Rotor 1 reverse changed " + ch + " to ");
+      ch = reflection(ch);
       ch = reverseRotors(ch, rotorIII, r3);
-      System.out.println(ch);
-      System.out.print("Rotor 2 reverse changed " + ch + " to ");
       ch = reverseRotors(ch, rotorII, r2);
-      System.out.println(ch);
-      System.out.print("Rotor 3 reverse changed " + ch + " to ");
       ch = reverseRotors(ch, rotorI, r1);
-      System.out.println(ch);
-      //Todo reverse
-      //System.out.println(ch);
       newM += ch;
+      rotate();
     }
     message = newM;
   }
@@ -126,8 +133,7 @@ public class Enigma {
   public static String rotors(String ch, String rot, int r) {
     for (int i = 0; i < 26; i++) {
       if (get(alphabet, i).equals(ch)) {
-        rotate();
-        return get(rot, getRotorIndex(i, r - 1));
+        return get(rot, getRotorIndex(i, r));
       }
     }
     return ch;
@@ -136,7 +142,7 @@ public class Enigma {
   public static String reverseRotors(String ch, String rot, int r) {
     for (int i = 0; i < 26; i++) {
       if (get(rot, i).equals(ch)) {
-        return get(alphabet, getReverseRotorIndex(i, r - 1));
+        return get(alphabet, getReverseRotorIndex(i, r));
       }
     }
     return ch;
