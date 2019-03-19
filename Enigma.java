@@ -80,11 +80,12 @@ public class Enigma {
     String ch = "";
     for (int i = 0; i < message.length(); i++) {
       ch = plugboard(get(message, i));
-      ch = rotors(ch, r1);
-      ch = rotors(ch, r2);
-      ch = rotors(ch, r3);
-      ch = reflection(ch, r4);
+      ch = rotors(ch, rotorI, r1);
+      //ch = rotors(ch, rotorII, r2);
+      //ch = rotors(ch, rotorIII, r3);
+      //ch = reflection(ch, r4);
       //Todo reverse
+      System.out.println(ch);
       newM += ch;
     }
     message = newM;
@@ -99,15 +100,13 @@ public class Enigma {
     return ch;
   }
   //RotorI
-  public static void rotors(String ch, int r) {
+  public static String rotors(String ch, String rot, int r) {
     for (int i = 0; i < 26; i++) {
       if (get(alphabet, i).equals(ch)) {
-        return get(rotor, getRotorIndex(i, r));
+        return get(rot, getRotorIndex(i, r));
       }
     }
     return ch;
-  }
-
   }
 
 }
