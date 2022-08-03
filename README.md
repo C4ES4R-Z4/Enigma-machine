@@ -1,8 +1,8 @@
 # Enigma-machine
 
-This is a project I started in 2017 (during my gap year before university).
+This is a project I started in 2017 (during my gap year before university) and changed along the way, final update was in 2019.
 I only had basic math skills, my Java was good, but nowhere near great or even on industry level.
-Please don't judge 2017-me for my code qualiy - thanks.
+Please don't judge 2017-2019 me for my code qualiy - thanks.
 
 ## What is this?
 
